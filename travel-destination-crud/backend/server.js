@@ -4,6 +4,36 @@ const cors = require('cors');
 const path = require('path');
 const pool = require('./db');
 
+// Initialize database table on startup
+const initDB = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS destinations (
+        id SERIAL PRIMARY KEY,
+        destination VARCHAR(255) NOT NULL,
+        country VARCHAR(255) NOT NULL,
+        region VARCHAR(255),
+        continent VARCHAR(255),
+        description TEXT,
+        best_season VARCHAR(100),
+        average_budget_usd DECIMAL(10, 2),
+        visa_required BOOLEAN,
+        safety_rating DECIMAL(3, 1),
+        top_attraction VARCHAR(255),
+        language VARCHAR(100),
+        currency VARCHAR(10),
+        status VARCHAR(20) DEFAULT 'active'
+      );
+    `);
+    console.log('✅ Database table "destinations" ensured.');
+  } catch (err) {
+    console.error('❌ Error initializing DB:', err.message);
+  }
+};
+
+// Call the initialization function
+initDB();
+
 const app = express();
 
 app.use(
