@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Destination Guide</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6f9;
+      color: #222;
+    }
+
+    header {
+      background: #0b3d91;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      padding: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px;
+      margin-top: 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      margin: 0;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+      background: #0b3d91;
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    button.secondary {
+      background: #64748b;
+    }
+
+    button.danger {
+      background: #dc2626;
+    }
+
+    button.small {
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 1200px;
+    }
+
+    th,
+    td {
+      border: 1px solid #e2e8f0;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #eef2ff;
+      position: sticky;
+      top: 0;
+    }
+
+    .truncate {
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Travel Destination Guide</h1>
+    <p>Single-table CRUD app using Node.js, Express, PostgreSQL, HTML, and JavaScript</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2 id="formTitle">Add Destination</h2>
+
+      <form id="destinationForm">
+        <input type="hidden" id="editingId" />
+
+        <label for="destination">Destination *</label>
+        <input type="text" id="destination" required />
+
+        <label for="country">Country *</label>
+        <input type="text" id="country" required />
+
+        <label for="region">Region</label>
+        <input type="text" id="region" />
+
+        <label for="continent">Continent</label>
+        <input type="text" id="continent" />
+
+        <label for="description">Description</label>
+        <textarea id="description"></textarea>
+
+        <label for="best_season">Best Season</label>
+        <input type="text" id="best_season" />
+
+        <label for="average_budget_usd">Average Budget USD</label>
+        <input type="number" id="average_budget_usd" step="0.01" min="0" />
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="visa_required" />
+          <label for="visa_required" style="margin-top:0;">Visa Required</label>
+        </div>
+
+        <label for="safety_rating">Safety Rating</label>
+        <select id="safety_rating">
+          <option value="1">1 - Very Unsafe</option>
+          <option value="2">2 - Unsafe</option>
+          <option value="3" selected>3 - Moderate</option>
+          <option value="4">4 - Safe</option>
+          <option value="5">5 - Very Safe</option>
+        </select>
+
+        <label for="top_attraction">Top Attraction</label>
+        <input type="text" id="top_attraction" />
+
+        <label for="language">Language</label>
+        <input type="text" id="language" />
+
+        <label for="currency">Currency</label>
+        <input type="text" id="currency" />
+
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="archived">Archived</option>
+        </select>
+
+        <div class="button-row">
+          <button type="submit" id="submitBtn">Save Destination</button>
+          <button type="button" class="secondary" id="cancelBtn">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Destinations</h2>
+      <p class="muted">Use Edit to load a record into the form. Use Delete to remove a record.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Destination</th>
+              <th>Country</th>
+              <th>Region</th>
+              <th>Continent</th>
+              <th>Description</th>
+              <th>Best Season</th>
+              <th>Budget USD</th>
+              <th>Visa</th>
+              <th>Safety</th>
+              <th>Top Attraction</th>
+              <th>Language</th>
+              <th>Currency</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="destinationTableBody">
+            <tr>
+              <td colspan="16">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
