@@ -5,8 +5,13 @@ if (!process.env.DATABASE_URL) {
   console.warn('WARNING: DATABASE_URL is not set. Add it to your .env file or Render environment variables.');
 }
 
+const useSsl = Boolean(
+  process.env.DATABASE_URL && process.env.DATABASE_URL.includes('render.com')
+);
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: useSsl ? { rejectUnauthorized: false } : false
 });
 
 pool.on('error', (err) => {
