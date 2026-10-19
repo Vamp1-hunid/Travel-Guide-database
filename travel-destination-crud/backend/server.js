@@ -31,40 +31,37 @@ const initDB = async () => {
   }
 };
 
-// Function to seed data if table is empty
+// Function to seed data - ALWAYS RESETS TO START AT ID 1
 const seedData = async () => {
   try {
-    // Check if any records exist
-    const countResult = await pool.query(`SELECT COUNT(*) as count FROM destinations`);
-    const rowCount = parseInt(countResult.rows[0].count);
+    // 1. Clear all existing data and reset the ID sequence to 1
+    console.log('🧹 Clearing old data to reset IDs...');
+    await pool.query(`TRUNCATE TABLE destinations RESTART IDENTITY CASCADE;`);
+    
+    // 2. Insert fresh sample records
+    console.log('🌱 Seeding database with 10 fresh records...');
+    
+    const samples = [
+      ['Victoria Falls', 'Zambia', 'Southern Province', 'Africa', 'One of the largest waterfalls in the world.', 'April to August', 350.00, false, 4.5, 'Devils Pool', 'English', 'USD'],
+      ['Machu Picchu', 'Peru', 'Cusco Region', 'South America', 'Ancient Incan citadel set high in the Andes Mountains.', 'May to September', 800.00, true, 4.8, 'Sun Gate', 'Spanish', 'PEN'],
+      ['Santorini', 'Greece', 'South Aegean', 'Europe', 'Famous for white-washed buildings and sunset views.', 'April to June', 900.00, false, 4.7, 'Oia Village', 'Greek', 'EUR'],
+      ['Kyoto', 'Japan', 'Kansai', 'Asia', 'Known for temples, gardens, and traditional culture.', 'March to May', 1000.00, false, 4.6, 'Fushimi Inari Shrine', 'Japanese', 'JPY'],
+      ['Cape Town', 'South Africa', 'Western Cape', 'Africa', 'Coastal city with Table Mountain and vineyards.', 'November to March', 700.00, true, 4.2, 'Table Mountain', 'English', 'ZAR'],
+      ['Banff', 'Canada', 'Alberta', 'North America', 'Mountain town known for lakes and national parks.', 'June to September', 750.00, false, 4.9, 'Lake Louise', 'English', 'CAD'],
+      ['Marrakech', 'Morocco', 'Marrakech-Safi', 'Africa', 'Famous for souks, gardens, and historic architecture.', 'March to May', 500.00, true, 4.0, 'Jemaa el-Fnaa', 'Arabic', 'MAD'],
+      ['Queenstown', 'New Zealand', 'Otago', 'Oceania', 'Adventure capital with skiing, hiking, and lake activities.', 'December to February', 1100.00, true, 4.8, 'Milford Sound', 'English', 'NZD'],
+      ['Rome', 'Italy', 'Lazio', 'Europe', 'Historic city with ancient ruins and Renaissance art.', 'April to June', 850.00, false, 4.5, 'Colosseum', 'Italian', 'EUR'],
+      ['Petra', 'Jordan', "Ma'an Governorate", 'Asia', 'Ancient rock-cut city and UNESCO World Heritage Site.', 'March to May', 600.00, true, 4.4, 'The Treasury', 'Arabic', 'JOD']
+    ];
 
-    if (rowCount === 0) {
-      console.log('🌱 Seeding database with 10 sample records...');
-      
-      const samples = [
-        ['Victoria Falls', 'Zambia', 'Southern Province', 'Africa', 'One of the largest waterfalls in the world.', 'April to August', 350.00, false, 4.5, 'Devils Pool', 'English', 'USD'],
-        ['Machu Picchu', 'Peru', 'Cusco Region', 'South America', 'Ancient Incan citadel set high in the Andes Mountains.', 'May to September', 800.00, true, 4.8, 'Sun Gate', 'Spanish', 'PEN'],
-        ['Santorini', 'Greece', 'South Aegean', 'Europe', 'Famous for white-washed buildings and sunset views.', 'April to June', 900.00, false, 4.7, 'Oia Village', 'Greek', 'EUR'],
-        ['Kyoto', 'Japan', 'Kansai', 'Asia', 'Known for temples, gardens, and traditional culture.', 'March to May', 1000.00, false, 4.6, 'Fushimi Inari Shrine', 'Japanese', 'JPY'],
-        ['Cape Town', 'South Africa', 'Western Cape', 'Africa', 'Coastal city with Table Mountain and vineyards.', 'November to March', 700.00, true, 4.2, 'Table Mountain', 'English', 'ZAR'],
-        ['Banff', 'Canada', 'Alberta', 'North America', 'Mountain town known for lakes and national parks.', 'June to September', 750.00, false, 4.9, 'Lake Louise', 'English', 'CAD'],
-        ['Marrakech', 'Morocco', 'Marrakech-Safi', 'Africa', 'Famous for souks, gardens, and historic architecture.', 'March to May', 500.00, true, 4.0, 'Jemaa el-Fnaa', 'Arabic', 'MAD'],
-        ['Queenstown', 'New Zealand', 'Otago', 'Oceania', 'Adventure capital with skiing, hiking, and lake activities.', 'December to February', 1100.00, true, 4.8, 'Milford Sound', 'English', 'NZD'],
-        ['Rome', 'Italy', 'Lazio', 'Europe', 'Historic city with ancient ruins and Renaissance art.', 'April to June', 850.00, false, 4.5, 'Colosseum', 'Italian', 'EUR'],
-        ['Petra', 'Jordan', "Ma'an Governorate", 'Asia', 'Ancient rock-cut city and UNESCO World Heritage Site.', 'March to May', 600.00, true, 4.4, 'The Treasury', 'Arabic', 'JOD']
-      ];
-
-      for (const sample of samples) {
-        await pool.query(
-          `INSERT INTO destinations (destination, country, region, continent, description, best_season, average_budget_usd, visa_required, safety_rating, top_attraction, language, currency) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-          sample
-        );
-      }
-      console.log('✅ Database seeded successfully.');
-    } else {
-      console.log('ℹ️ Database already has records. Skipping seed.');
+    for (const sample of samples) {
+      await pool.query(
+        `INSERT INTO destinations (destination, country, region, continent, description, best_season, average_budget_usd, visa_required, safety_rating, top_attraction, language, currency) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        sample
+      );
     }
+    console.log('✅ Database re-seeded successfully. IDs now start at 1.');
   } catch (err) {
     console.error('❌ Error seeding DB:', err.message);
   }
